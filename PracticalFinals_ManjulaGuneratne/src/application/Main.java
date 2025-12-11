@@ -4,17 +4,25 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -22,7 +30,10 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.layout.ColumnConstraints;
+import javafx.beans.binding.Bindings;
 
 
 public class Main extends Application {
@@ -31,7 +42,7 @@ public class Main extends Application {
 		
 		UserDao userDao = new UserDao();
 		
-		primaryStage.setTitle("Week10_Lab: Manjula Guneratne");
+		primaryStage.setTitle("FinalExam: Manjula Guneratne");
 
 		GridPane grid = new GridPane();
 		grid.setAlignment(Pos.CENTER);
@@ -49,14 +60,70 @@ public class Main extends Application {
 		col3.setHgrow(Priority.ALWAYS);
 
 		grid.getColumnConstraints().addAll(col0, col1, col2, col3);
+		
+		Image company_logo = new Image("file:///C:/Users/Owner/git/repository15/PracticalFinals_ManjulaGuneratne/src/application/Company_Logo.png");
+		//Creating an ImageView 
+		ImageView company_view = new ImageView(company_logo);
+		company_view.setFitWidth(200);
+		company_view.setPreserveRatio(true);
+		grid.add(company_view, 0, 0,2,1);
 
 		Text scenetitle = new Text("Employment Application");
-		scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
-		grid.add(scenetitle, 0, 0, 2, 1);
+		scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 30));
+		scenetitle.setFill(javafx.scene.paint.Color.WHITE);
+		
+		//Black Background rectangle
+		Rectangle bgRect = new Rectangle();
+		bgRect.setFill(javafx.scene.paint.Color.BLACK);
+		bgRect.setArcHeight(10);
+		bgRect.setArcWidth(10);
+		
+		//Bind rectangle size to text (auto-resize)
+		bgRect.widthProperty().bind(Bindings.createDoubleBinding(
+			    () -> scenetitle.getBoundsInLocal().getWidth() + 20,
+			    scenetitle.boundsInLocalProperty()
+			));
+			
+		bgRect.heightProperty().bind(Bindings.createDoubleBinding(
+		    () -> scenetitle.getBoundsInLocal().getHeight() + 10,
+		    scenetitle.boundsInLocalProperty()
+		));
+		
+		//Stack ontop of the black rectangle
+		StackPane titleContainer = new StackPane(bgRect, scenetitle);
+		StackPane.setAlignment(scenetitle, Pos.CENTER);
+		GridPane.setHalignment(titleContainer, HPos.RIGHT);
+	
+		grid.add(titleContainer, 2, 0, 2, 1);
 		
 		Text personInfoSubtitle = new Text("Personal Information");
-		personInfoSubtitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 16));
-		grid.add(personInfoSubtitle, 0, 1, 2, 1);
+		personInfoSubtitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 16));		
+		personInfoSubtitle.setFill(javafx.scene.paint.Color.WHITE);
+		
+		//Black Background rectangle
+		Rectangle bgRect2 = new Rectangle();
+		bgRect2.setFill(javafx.scene.paint.Color.BLACK);
+		bgRect2.setArcHeight(10);
+		bgRect2.setArcWidth(10);
+		
+		//Bind rectangle size to text (auto-resize)
+		bgRect2.widthProperty().bind(Bindings.createDoubleBinding(
+			    () -> personInfoSubtitle.getBoundsInLocal().getWidth() + 10,
+			    personInfoSubtitle.boundsInLocalProperty()
+			));
+			
+		bgRect2.heightProperty().bind(Bindings.createDoubleBinding(
+		    () -> personInfoSubtitle.getBoundsInLocal().getHeight() + 5,
+		    personInfoSubtitle.boundsInLocalProperty()
+		));
+		
+		//Stack ontop of the black rectangle
+		StackPane personInfoContainer = new StackPane(bgRect2, personInfoSubtitle);
+		StackPane.setAlignment(personInfoSubtitle, Pos.CENTER);
+		GridPane.setHalignment(personInfoContainer, HPos.RIGHT);		
+		
+		
+		grid.add(personInfoContainer, 0, 1, 1, 1);
 
 		Label fullNameLabel = new Label("Full Name:");
 		grid.add(fullNameLabel, 0, 2);
@@ -64,6 +131,19 @@ public class Main extends Application {
 		TextField fullnameTextField = new TextField();
 		GridPane.setHgrow(fullnameTextField, Priority.ALWAYS);
 		fullnameTextField.setMaxWidth(Double.MAX_VALUE);
+		
+		//Validation: Limit to 50 Characters,
+		fullnameTextField.setTextFormatter(new TextFormatter<>(change -> {
+			String newText = change.getControlNewText();
+			if(newText.length() > 50) {
+				return null;
+			}
+			if (newText.matches("[A-Za-z ]*")) {
+				return change; //Accepts letters and spaces only
+			}
+			return null;
+		}));
+				
 		//grid.add(fullnameTextField, 1, 1);
 		grid.add(fullnameTextField, 1, 2, 3, 1);  // span 3 columns
 
@@ -80,6 +160,19 @@ public class Main extends Application {
 		grid.add(contactNumberLabel, 0, 4);
 
 		TextField contactNumberTextField = new TextField();
+		
+		//Validation: Limit to 50 Characters,
+		contactNumberTextField.setTextFormatter(new TextFormatter<>(change -> {
+			String newText = change.getControlNewText();
+			if(newText.length() > 10) {
+				return null;
+			}
+			if (newText.matches("\\d*")) {
+				return change; //Accepts digits only
+			}
+			return null;
+		}));
+				
 		grid.add(contactNumberTextField, 1, 4);
 
 		Label emailLabel = new Label("Email Address:");
@@ -91,8 +184,14 @@ public class Main extends Application {
 		Label educationlevelLabel = new Label("Highest Educational Attainment:");
 		grid.add(educationlevelLabel, 0, 5);
 
-		TextField educationlevelTextField = new TextField();
-		grid.add(educationlevelTextField, 1, 5);
+		String educationlevels[] = {"Masters","Bachelors","College Diploma"};
+		
+		ComboBox<String> educationComboBox = new ComboBox<>(FXCollections.observableArrayList(educationlevels));
+		educationComboBox.setPromptText("Select Education Level");
+		//Combo box selection is collected here
+		//String educationlevelComboBox = educationComboBox.getValue();
+		
+		grid.add(educationComboBox, 1, 5);
 		
 		Label genderLabel = new Label("Gender:");
 		grid.add(genderLabel, 2, 5);
@@ -118,14 +217,49 @@ public class Main extends Application {
 		grid.add(gridForRadioButtons, 3, 5, 2, 1);
 		
 		Text empEligibiltySubtitle = new Text("Employment Eligibility");
-		empEligibiltySubtitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 16));
-		grid.add(empEligibiltySubtitle, 0, 6, 2, 1);
+		empEligibiltySubtitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 16));		
+		empEligibiltySubtitle.setFill(javafx.scene.paint.Color.WHITE);
+		
+		//Black Background rectangle
+		Rectangle bgRect3 = new Rectangle();
+		bgRect3.setFill(javafx.scene.paint.Color.BLACK);
+		bgRect3.setArcHeight(10);
+		bgRect3.setArcWidth(10);
+		
+		//Bind rectangle size to text (auto-resize)
+		bgRect3.widthProperty().bind(Bindings.createDoubleBinding(
+			    () -> empEligibiltySubtitle.getBoundsInLocal().getWidth() + 10,
+			    empEligibiltySubtitle.boundsInLocalProperty()
+			));
+			
+		bgRect3.heightProperty().bind(Bindings.createDoubleBinding(
+		    () -> empEligibiltySubtitle.getBoundsInLocal().getHeight() + 5,
+		    empEligibiltySubtitle.boundsInLocalProperty()
+		));
+		
+		//Stack ontop of the black rectangle
+		StackPane empEligibiltyContainer = new StackPane(bgRect3, empEligibiltySubtitle);
+		StackPane.setAlignment(empEligibiltySubtitle, Pos.CENTER);
+		GridPane.setHalignment(empEligibiltyContainer, HPos.RIGHT);		
+				
+		grid.add(empEligibiltyContainer, 0, 6, 1, 1);
 		
 		Label dateLabel = new Label("Date Available:");
 		grid.add(dateLabel, 0, 7);
 
 		DatePicker date = new DatePicker();
 		date.setPromptText("mm/dd/yyyy");
+				
+		// Disables past dates - only future date selection possible
+		date.setDayCellFactory(picker -> new javafx.scene.control.DateCell() {
+		    @Override
+		    public void updateItem(LocalDate date, boolean empty) {
+		        super.updateItem(date, empty);
+		        LocalDate today = LocalDate.now();
+		        setDisable(empty || date.isBefore(today));  // Disables previous dates
+		    }
+		});
+		
 		grid.add(date, 1, 7);
 		
 		//Get the selected date
@@ -143,6 +277,23 @@ public class Main extends Application {
 		TextField desiredSalaryTextField = new TextField();
 		GridPane.setHgrow(desiredSalaryTextField, Priority.ALWAYS);
 		desiredSalaryTextField.setMaxWidth(Double.MAX_VALUE);
+		
+		//Salary validation: 8 digits followed by 2 decimal places
+		desiredSalaryTextField.setTextFormatter(new TextFormatter<>(change -> {
+		    String newText = change.getControlNewText();
+		    
+		    // Allow empty string
+		    if(newText.isEmpty()) {
+		    	return change;
+		    }
+		    
+		    if(newText.matches("\\d{0,8}(\\.\\d{0,2})?")) {
+		    	return change;
+		    }
+		    
+		    return null;
+		}));
+		
 		grid.add(desiredSalaryTextField, 1, 8, 3,1);
 		
 		Label legalAuthLabel = new Label("Are you legally autherized to work in the country?");
@@ -195,7 +346,17 @@ public class Main extends Application {
 		TextField explainfurtherTextField = new TextField();
 		GridPane.setHgrow(explainfurtherTextField, Priority.ALWAYS);
 		explainfurtherTextField.setMaxWidth(Double.MAX_VALUE);
-		grid.add(explainfurtherTextField, 1, 13, 3,1);					
+		grid.add(explainfurtherTextField, 1, 13, 3,1);		
+		
+		Separator sep = new Separator();
+		sep.setOrientation(Orientation.HORIZONTAL);
+		grid.add(sep, 0, 14,GridPane.REMAINING,1);
+		
+		Label formTextLabel = new Label("By submitting this application, you agree to adhere to company"
+				+ " policies and provide accurate information throughout the employment process.");
+		formTextLabel.setWrapText(true);  // Enable text wrapping
+		formTextLabel.setMaxWidth(400);   // Set maximum width
+		grid.add(formTextLabel, 0, 15,2,2);
 
 		Button saveButton = new Button("Save");
 		HBox hBox = new HBox(10);
@@ -205,14 +366,19 @@ public class Main extends Application {
 		saveButton.setMaxWidth(Double.MAX_VALUE);		
 		
 		hBox.getChildren().add(saveButton);
-		grid.add(hBox, 0, 15, 2, 1);
+		grid.add(hBox, 2, 15, 2, 1);
 		
 		saveButton.setOnAction(actionEvent -> {
 		    String fullName = fullnameTextField.getText().trim();
 		    String currentAddress = currentAddressTextField.getText().trim();
 		    String contactNumber = contactNumberTextField.getText().trim();
 		    String email = emailTextField.getText().trim();
-		    String highestEducation = educationlevelTextField.getText().trim();
+		    String highestEducation = educationComboBox.getValue();  // Fetch from ComboBox
+		    if (highestEducation != null) {
+		        highestEducation = highestEducation.trim();
+		    } else {
+		        highestEducation = "";  // Default if unselected
+		    }
 		    String gender = group.getSelectedToggle() != null ? group.getSelectedToggle().getUserData().toString() : "";
 		    LocalDate dateAvailable = date.getValue();
 		    String desiredPos = desiredPositionTextField.getText().trim();
@@ -220,6 +386,42 @@ public class Main extends Application {
 		    String legalWorkAuth = legalAuthGroup.getSelectedToggle() != null ? legalAuthGroup.getSelectedToggle().getUserData().toString() : "";
 		    String relWorkingHere = relWoringGroup.getSelectedToggle() != null ? relWoringGroup.getSelectedToggle().getUserData().toString() : "";
 		    String furtherExplanation = explainfurtherTextField.getText().trim();
+		    
+		    //Validation before saving
+		    if(fullName.isEmpty()) {
+		    	alert("Validation Error","Full name is required", AlertType.ERROR);
+		    	return;
+		    }
+		    
+		    if(contactNumber.length() != 10) {
+		    	alert("Validation Error", "Contact number must be exactly 10 digits",  AlertType.ERROR);
+		    	return;
+		    }
+		    
+		    if(email.isEmpty() || !email.contains("@")) {
+		    	alert("Validation Error", "Please enter a valid email address",  AlertType.ERROR);
+		    	return;
+		    }
+		    
+		    if(gender.isEmpty()) {
+		    	alert("Validation Error", "Please select a gender",  AlertType.ERROR);
+		    	return;
+		    }
+		    
+		    if(dateAvailable == null) {
+		    	alert("Validation Error", "Please select a date available",  AlertType.ERROR);
+		    	return;
+		    }
+		    
+		    if (legalWorkAuth.isEmpty()) {
+		    	alert("Validation Error", "Please indicate legal work autherization",  AlertType.ERROR);
+		    	return;
+		    }
+		    
+		    if (highestEducation.isEmpty()) {
+		        alert("Validation Error", "Please select highest education level", AlertType.ERROR);
+		        return;
+		    }
 
 		    // Create User object
 		    User user = new User();
@@ -240,8 +442,22 @@ public class Main extends Application {
 		    try {
 				userDao.saveUser(user);
 				this.alert("Save", "Successful!", AlertType.INFORMATION);
+				
+				// Clear form after successful save
+				fullnameTextField.clear();
+				currentAddressTextField.clear();
+				contactNumberTextField.clear();
+				emailTextField.clear();
+				educationComboBox.getSelectionModel().clearSelection();
+				group.selectToggle(null);
+				date.setValue(null);
+				desiredPositionTextField.clear();
+				desiredSalaryTextField.clear();
+				legalAuthGroup.selectToggle(null);
+				relWoringGroup.selectToggle(null);
+				explainfurtherTextField.clear();
+				
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				this.alert("Error", "Failed!", AlertType.ERROR);
 			}
@@ -251,7 +467,7 @@ public class Main extends Application {
 		});
 		
 		
-		Scene scene = new Scene(grid, 750, 600);
+		Scene scene = new Scene(grid, 900, 600);
 		primaryStage.setScene(scene);
 
 		primaryStage.show();
